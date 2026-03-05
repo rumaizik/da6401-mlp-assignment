@@ -4,38 +4,118 @@ Entry point for training neural networks with command-line arguments
 """
 
 import argparse
+import numpy as np
+import json
+import os
 
+from utils.data_loader import load_data
+from ann.neural_network import NeuralNetwork
+
+
+# --------------------------------------------------
+# Argument parser
+# --------------------------------------------------
 def parse_arguments():
-    """
-    Parse command-line arguments.
-    
-    TODO: Implement argparse with the following arguments:
-    - dataset: 'mnist' or 'fashion_mnist'
-    - epochs: Number of training epochs
-    - batch_size: Mini-batch size
-    - learning_rate: Learning rate for optimizer
-    - optimizer: 'sgd', 'momentum', 'nag', 'rmsprop', 'adam', 'nadam'
-    - hidden_layers: List of hidden layer sizes
-    - num_neurons: Number of neurons in hidden layers
-    - activation: Activation function ('relu', 'sigmoid', 'tanh')
-    - loss: Loss function ('cross_entropy', 'mse')
-    - weight_init: Weight initialization method
-    - wandb_project: W&B project name
-    - model_save_path: Path to save trained model (do not give absolute path, rather provide relative path)
-    """
-    parser = argparse.ArgumentParser(description='Train a neural network')
-    
+
+    parser = argparse.ArgumentParser(description="Train Neural Network")
+
+    parser.add_argument("--dataset", type=str, default="mnist")
+    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--batch_size", type=int, default=64)
+    parser.add_argument("--learning_rate", type=float, default=0.001)
+
+    parser.add_argument("--optimizer", type=str, default="adam")
+
+    parser.add_argument("--hidden_layers", nargs="+", type=int,
+                        default=[128, 64])
+
+    parser.add_argument("--activation", type=str, default="relu")
+
+    parser.add_argument("--loss", type=str, default="cross_entropy")
+
+    parser.add_argument("--weight_init", type=str, default="xavier")
+
+    parser.add_argument("--weight_decay", type=float, default=0.0)
+
+    parser.add_argument("--model_save_path", type=str,
+                        default="model.npy")
+
     return parser.parse_args()
 
+# --------------------------------------------------
+# Save model
+# --------------------------------------------------
+
+def save_model(model, args):
+
+    model_data = {
+        "weights": [layer.W for layer in model.layers],
+        "biases": [layer.b for layer in model.layers]
+    }
+
+    np.save(args.model_save_path, model_data, allow_pickle=True)
+
+    # Save config
+    config = vars(args)
+
+    with open("config.json", "w") as f:
+        json.dump(config, f, indent=4)
+
+    print("Model saved as model.npy")
+    print("Config saved as config.json")
+
+
+# --------------------------------------------------
+# Main function
+# --------------------------------------------------
 
 def main():
-    """
-    Main training function.
-    """
+
     args = parse_arguments()
-    
-    print("Training complete!")
 
+    print("Loading dataset...")
 
-if __name__ == '__main__':
+    X_train, y_train, X_test, y_test = load_data(args.dataset)
+
+    # Set input/output sizes
+    args.input_size = X_train.shape[1]
+    args.output_size = y_train.shape[1]
+
+    # ----------------------------
+    # Create validation split (90/10)
+    # ----------------------------
+    val_split = int(0.9 * X_train.shape[0])
+
+    X_val = X_train[val_split:]
+    y_val = y_train[val_split:]
+
+    X_train = X_train[:val_split]
+    y_train = y_train[:val_split]
+
+    print("Building model...")
+
+    model = NeuralNetwork(args)
+
+    print("Training model...")
+
+    model.train(
+        X_train,
+        y_train,
+        X_val,
+        y_val,
+        epochs=args.epochs,
+        batch_size=args.batch_size
+    )
+
+    print("Evaluating model on test set...")
+
+    test_accuracy = model.evaluate(X_test, y_test)
+
+    print(f"Test Accuracy: {test_accuracy:.4f}")
+
+    save_model(model, args)
+
+# --------------------------------------------------
+
+if __name__ == "__main__":
     main()

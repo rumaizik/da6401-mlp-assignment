@@ -1,61 +1,166 @@
 """
-Main Neural Network Model class
-Handles forward and backward propagation loops
+Neural Network Model
+Handles forward, backward, and training
 """
 
-class NeuralNetwork:
-    """
-    Main model class that orchestrates the neural network training and inference.
-    """
-    
-    def __init__(self, cli_args):
-        """
-        Initialize the neural network.
+import numpy as np
 
-        Args:
-            cli_args: Command-line arguments for configuring the network
-        """
-        pass
-    
+from ann.neural_layer import NeuralLayer
+from ann.activations import Sigmoid, Tanh, ReLU, Softmax
+from ann.objective_functions import CrossEntropyLoss, MeanSquaredError
+from ann.optimizers import SGD, Momentum, Adam, RMSProp, NAG,Nadam
+
+
+class NeuralNetwork:
+
+    def __init__(self, args):
+
+        self.layers = []
+
+        # Activation selection
+        if args.activation == "sigmoid":
+            activation = Sigmoid
+        elif args.activation == "tanh":
+            activation = Tanh
+        else:
+            activation = ReLU
+
+        input_size = args.input_size
+
+        # Hidden layers
+        for hidden_size in args.hidden_layers:
+
+            layer = NeuralLayer(
+                input_size,
+                hidden_size,
+                activation=activation(),
+                weight_init=args.weight_init,
+                weight_decay=args.weight_decay
+            )
+
+            self.layers.append(layer)
+
+            input_size = hidden_size
+
+        # Output layer
+        output_layer = NeuralLayer(
+            input_size,
+            args.output_size,
+            activation=Softmax(),
+            weight_init=args.weight_init,
+            weight_decay=args.weight_decay
+        )
+
+        self.layers.append(output_layer)
+
+        # Loss
+        if args.loss == "cross_entropy":
+            self.loss_fn = CrossEntropyLoss()
+        else:
+            self.loss_fn = MeanSquaredError()
+
+        # Optimizer
+        # Optimizer
+        if args.optimizer == "sgd":
+            self.optimizer = SGD(args.learning_rate)
+
+        elif args.optimizer == "momentum":
+            self.optimizer = Momentum(args.learning_rate)
+
+        elif args.optimizer == "nag":
+            self.optimizer = NAG(args.learning_rate)
+
+        elif args.optimizer == "rmsprop":
+            self.optimizer = RMSProp(args.learning_rate)
+
+        elif args.optimizer == "adam":
+            self.optimizer = Adam(args.learning_rate)
+        elif args.optimizer == "nadam":
+            self.optimizer = Nadam(args.learning_rate)    
+
+        else:
+            raise ValueError("Unsupported optimizer")
+
+    # --------------------------------------------------
+
     def forward(self, X):
-        """
-        Forward propagation through all layers.
-        
-        Args:
-            X: Input data
-            
-        Returns:
-            Output logits
-        """
-        pass
-    
-    def backward(self, y_true, y_pred):
-        """
-        Backward propagation to compute gradients.
-        
-        Args:
-            y_true: True labels
-            y_pred: Predicted outputs
-            
-        Returns:
-            return grad_w, grad_b
-        """
-        pass
-    
+
+        output = X
+
+        for layer in self.layers:
+
+            output = layer.forward(output)
+
+        return output
+
+    # --------------------------------------------------
+
+    def backward(self):
+
+        grad = self.loss_fn.backward()
+
+        for layer in reversed(self.layers):
+
+            grad = layer.backward(grad)
+
+    # --------------------------------------------------
+
     def update_weights(self):
-        """
-        Update weights using the optimizer.
-        """
-        pass
-    
-    def train(self, X_train, y_train, epochs, batch_size):
-        """
-        Train the network for specified epochs.
-        """
-        pass
-    
+
+        for i, layer in enumerate(self.layers):
+
+            # optimizers needing layer id
+            if self.optimizer.__class__.__name__ in ["Momentum", "NAG", "Adam", "Nadam", "RMSProp"]:
+               self.optimizer.update(layer, i)
+
+            # simple optimizers
+            else:
+                self.optimizer.update(layer)
+    # --------------------------------------------------
+
+    def train(self, X_train, y_train, X_val, y_val, epochs, batch_size):
+
+        n = X_train.shape[0]
+
+        for epoch in range(epochs):
+
+            permutation = np.random.permutation(n)
+
+            X_train = X_train[permutation]
+            y_train = y_train[permutation]
+
+            total_loss = 0
+
+            for i in range(0, n, batch_size):
+
+                X_batch = X_train[i:i + batch_size]
+                y_batch = y_train[i:i + batch_size]
+
+                y_pred = self.forward(X_batch)
+
+                loss = self.loss_fn.forward(y_batch, y_pred)
+
+                total_loss += loss
+
+                self.backward()
+
+                self.update_weights()
+
+            avg_loss = total_loss / (n // batch_size)
+
+            val_accuracy = self.evaluate(X_val, y_val)
+
+            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}, Val Acc: {val_accuracy:.4f}")
+    # --------------------------------------------------
+
     def evaluate(self, X, y):
-        """
-        Evaluate the network on given data.
-        """
-        pass
+
+        y_pred = self.forward(X)
+
+        predictions = np.argmax(y_pred, axis=1)
+
+        true = np.argmax(y, axis=1)
+
+        accuracy = np.mean(predictions == true)
+
+        return accuracy
