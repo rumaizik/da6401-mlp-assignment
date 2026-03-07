@@ -1,0 +1,11 @@
+{"time":"2026-03-07T05:55:57.2810326+05:30","level":"INFO","msg":"stream: starting","core version":"0.25.0"}
+{"time":"2026-03-07T05:55:57.7102789+05:30","level":"INFO","msg":"stream: created new stream","id":"sbom97li"}
+{"time":"2026-03-07T05:55:57.7102789+05:30","level":"INFO","msg":"handler: started","stream_id":"sbom97li"}
+{"time":"2026-03-07T05:55:57.7119144+05:30","level":"INFO","msg":"writer: started","stream_id":"sbom97li"}
+{"time":"2026-03-07T05:55:57.7119144+05:30","level":"INFO","msg":"stream: started","id":"sbom97li"}
+{"time":"2026-03-07T05:55:57.7119144+05:30","level":"INFO","msg":"sender: started","stream_id":"sbom97li"}
+{"time":"2026-03-07T05:56:27.8044277+05:30","level":"INFO","msg":"stream: closing","id":"sbom97li"}
+{"time":"2026-03-07T05:56:29.4828337+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-03-07T05:56:29.9168506+05:30","level":"INFO","msg":"handler: closed","stream_id":"sbom97li"}
+{"time":"2026-03-07T05:56:29.9184368+05:30","level":"INFO","msg":"sender: closed","stream_id":"sbom97li"}
+{"time":"2026-03-07T05:56:29.9189918+05:30","level":"INFO","msg":"stream: closed","id":"sbom97li"}

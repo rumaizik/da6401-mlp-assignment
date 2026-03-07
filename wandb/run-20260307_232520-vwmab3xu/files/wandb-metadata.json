@@ -1,0 +1,28 @@
+{
+  "os":  "Windows-10-10.0.26200-SP0",
+  "python":  "CPython 3.10.19",
+  "startedAt":  "2026-03-07T17:55:20.466328Z",
+  "program":  "C:\\STORE\\iit\\dl\\da6401_assignment_1\\src\\confusion_matrix.py",
+  "codePath":  "src\\confusion_matrix.py",
+  "codePathLocal":  "src\\confusion_matrix.py",
+  "git":  {
+    "remote":  "https://github.com/rumaizik/da6401-mlp-assignment.git",
+    "commit":  "b41414f0147f6327fe5ede4e29913a790dd59b56"
+  },
+  "email":  "rumaizik@gmail.com",
+  "root":  "C:\\STORE\\iit\\dl\\da6401_assignment_1",
+  "host":  "LAPTOP-L644K35A",
+  "executable":  "C:\\Users\\rumaiz\\miniconda3\\envs\\ml\\python.exe",
+  "cpu_count":  8,
+  "cpu_count_logical":  16,
+  "disk":  {
+    "/":  {
+      "total":  "509722226688",
+      "used":  "116354736128"
+    }
+  },
+  "memory":  {
+    "total":  "14286462976"
+  },
+  "writerId":  "oda2ubjxb3ic58efxfoe3vunecu4msac"
+}

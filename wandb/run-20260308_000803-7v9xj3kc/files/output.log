@@ -1,0 +1,23 @@
+Loading dataset...
+Building model...
+Training model...
+Traceback (most recent call last):
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 131, in <module>
+    main()
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 111, in main
+    model.train(
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\ann\neural_network.py", line 152, in train
+    self.backward()
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\ann\neural_network.py", line 111, in backward
+    wandb.log({f"grad_neuron_{i}": np.linalg.norm(self.layers[0].dW[i])})
+AttributeError: 'NeuralLayer' object has no attribute 'dW'
+Traceback (most recent call last):
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 131, in <module>
+    main()
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 111, in main
+    model.train(
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\ann\neural_network.py", line 152, in train
+    self.backward()
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\ann\neural_network.py", line 111, in backward
+    wandb.log({f"grad_neuron_{i}": np.linalg.norm(self.layers[0].dW[i])})
+AttributeError: 'NeuralLayer' object has no attribute 'dW'

@@ -1,0 +1,17 @@
+Loading dataset...
+Building model...
+Training model...
+Epoch 1/10, Loss: 0.2861, Train Acc: 0.9556, Val Acc: 0.9588
+Epoch 2/10, Loss: 0.1336, Train Acc: 0.9669, Val Acc: 0.9632
+Epoch 3/10, Loss: 0.1046, Train Acc: 0.9765, Val Acc: 0.9697
+Epoch 4/10, Loss: 0.0904, Train Acc: 0.9763, Val Acc: 0.9670
+Epoch 5/10, Loss: 0.0802, Train Acc: 0.9797, Val Acc: 0.9718
+Epoch 6/10, Loss: 0.0725, Train Acc: 0.9751, Val Acc: 0.9672
+Epoch 7/10, Loss: 0.0665, Train Acc: 0.9825, Val Acc: 0.9710
+Epoch 8/10, Loss: 0.0606, Train Acc: 0.9817, Val Acc: 0.9705
+Epoch 9/10, Loss: 0.0596, Train Acc: 0.9812, Val Acc: 0.9705
+Epoch 10/10, Loss: 0.0561, Train Acc: 0.9855, Val Acc: 0.9733
+Evaluating model on test set...
+Test Accuracy: 0.9674
+Model saved as model.npy
+Config saved as config.json

@@ -4,6 +4,8 @@ Handles forward, backward, and training
 """
 
 import numpy as np
+import wandb
+import numpy as np
 
 from ann.neural_layer import NeuralLayer
 from ann.activations import Sigmoid, Tanh, ReLU, Softmax
@@ -102,6 +104,11 @@ class NeuralNetwork:
         for layer in reversed(self.layers):
 
             grad = layer.backward(grad)
+        # log gradients of first 5 neurons in first hidden layer
+        
+
+        for i in range(5):
+           wandb.log({f"grad_neuron_{i}": np.linalg.norm(self.layers[0].grad_W[:,i])})   
 
     # --------------------------------------------------
 
@@ -148,9 +155,17 @@ class NeuralNetwork:
 
             avg_loss = total_loss / (n // batch_size)
 
+            train_accuracy = self.evaluate(X_train, y_train)
             val_accuracy = self.evaluate(X_val, y_val)
 
-            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}, Val Acc: {val_accuracy:.4f}")
+            print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}, Train Acc: {train_accuracy:.4f}, Val Acc: {val_accuracy:.4f}") 
+            import wandb
+            wandb.log({
+                "loss": avg_loss,
+                "train_accuracy": train_accuracy,
+                "val_accuracy": val_accuracy,
+                "grad_norm_layer1": np.linalg.norm(self.layers[0].grad_W)
+            })
     # --------------------------------------------------
 
     def evaluate(self, X, y):

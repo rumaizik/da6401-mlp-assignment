@@ -1,0 +1,20 @@
+Loading dataset...
+Building model...
+Training model...
+Epoch 1/10, Loss: 0.2745, Val Acc: 0.9633
+Traceback (most recent call last):
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 130, in <module>
+    main()
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 110, in main
+    model.train(
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\ann\neural_network.py", line 157, in train
+    "val_accuracy": val_acc
+NameError: name 'val_acc' is not defined
+Traceback (most recent call last):
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 130, in <module>
+    main()
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 110, in main
+    model.train(
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\ann\neural_network.py", line 157, in train
+    "val_accuracy": val_acc
+NameError: name 'val_acc' is not defined

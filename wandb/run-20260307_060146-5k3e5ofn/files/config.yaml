@@ -1,0 +1,66 @@
+_wandb:
+    value:
+        cli_version: 0.25.0
+        e:
+            wf27xn94oyoweofpsejq4pwannmjhcr6:
+                args:
+                    - --activation=tanh
+                    - --hidden_layers=128,64
+                    - --learning_rate=0.001
+                    - --optimizer=rmsprop
+                codePath: src\train.py
+                codePathLocal: src\train.py
+                cpu_count: 8
+                cpu_count_logical: 16
+                disk:
+                    /:
+                        total: "509722226688"
+                        used: "115227828224"
+                email: rumaizik@gmail.com
+                executable: C:\Users\rumaiz\miniconda3\envs\ml\python.exe
+                git:
+                    commit: 92275312a7b043105868476cbbce1d2a478a1530
+                    remote: https://github.com/rumaizik/da6401-mlp-assignment.git
+                host: LAPTOP-L644K35A
+                memory:
+                    total: "14286462976"
+                os: Windows-10-10.0.26200-SP0
+                program: C:\STORE\iit\dl\da6401_assignment_1\src\train.py
+                python: CPython 3.10.19
+                root: C:\STORE\iit\dl\da6401_assignment_1
+                startedAt: "2026-03-07T00:31:46.427217Z"
+                writerId: wf27xn94oyoweofpsejq4pwannmjhcr6
+        m: []
+        python_version: 3.10.19
+        t:
+            "1":
+                - 2
+                - 3
+                - 5
+                - 53
+            "2":
+                - 2
+                - 3
+                - 5
+                - 53
+            "3":
+                - 14
+                - 16
+            "4": 3.10.19
+            "5": 0.25.0
+            "8":
+                - 3
+            "12": 0.25.0
+            "13": windows-amd64
+activation:
+    value: tanh
+dataset:
+    value: mnist
+epochs:
+    value: 10
+hidden_layers:
+    value: 128,64
+learning_rate:
+    value: 0.001
+optimizer:
+    value: rmsprop

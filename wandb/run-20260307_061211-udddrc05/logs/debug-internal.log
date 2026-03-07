@@ -1,0 +1,11 @@
+{"time":"2026-03-07T06:12:14.0307779+05:30","level":"INFO","msg":"stream: starting","core version":"0.25.0"}
+{"time":"2026-03-07T06:12:14.4377133+05:30","level":"INFO","msg":"stream: created new stream","id":"udddrc05"}
+{"time":"2026-03-07T06:12:14.4377133+05:30","level":"INFO","msg":"handler: started","stream_id":"udddrc05"}
+{"time":"2026-03-07T06:12:14.4398867+05:30","level":"INFO","msg":"stream: started","id":"udddrc05"}
+{"time":"2026-03-07T06:12:14.4398867+05:30","level":"INFO","msg":"sender: started","stream_id":"udddrc05"}
+{"time":"2026-03-07T06:12:14.4404001+05:30","level":"INFO","msg":"writer: started","stream_id":"udddrc05"}
+{"time":"2026-03-07T06:12:46.4388532+05:30","level":"INFO","msg":"stream: closing","id":"udddrc05"}
+{"time":"2026-03-07T06:12:48.0218913+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-03-07T06:12:48.428654+05:30","level":"INFO","msg":"handler: closed","stream_id":"udddrc05"}
+{"time":"2026-03-07T06:12:48.4301989+05:30","level":"INFO","msg":"sender: closed","stream_id":"udddrc05"}
+{"time":"2026-03-07T06:12:48.4301989+05:30","level":"INFO","msg":"stream: closed","id":"udddrc05"}

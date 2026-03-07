@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 import json
 import os
-
+import wandb
 from utils.data_loader import load_data
 from ann.neural_network import NeuralNetwork
 
@@ -26,8 +26,8 @@ def parse_arguments():
 
     parser.add_argument("--optimizer", type=str, default="adam")
 
-    parser.add_argument("--hidden_layers", nargs="+", type=int,
-                        default=[128, 64])
+    parser.add_argument("--hidden_layers", type=str,
+                        default="128, 64")
 
     parser.add_argument("--activation", type=str, default="relu")
 
@@ -72,7 +72,17 @@ def save_model(model, args):
 def main():
 
     args = parse_arguments()
-
+    args.hidden_layers = [int(x) for x in args.hidden_layers.replace(",", " ").split()]
+    wandb.init(
+    project="da6401-mlp",
+    config={
+        "dataset": args.dataset,
+        "epochs": args.epochs,
+        "optimizer": args.optimizer,
+        "learning_rate": args.learning_rate,
+        "activation": args.activation
+    }
+)
     print("Loading dataset...")
 
     X_train, y_train, X_test, y_test = load_data(args.dataset)

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\confusion_matrix.py", line 15, in <module>
+    model_data = np.load("model.npy", allow_pickle=True).item()
+  File "C:\Users\rumaiz\miniconda3\envs\ml\lib\site-packages\numpy\lib\_npyio_impl.py", line 451, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+FileNotFoundError: [Errno 2] No such file or directory: 'model.npy'
+Traceback (most recent call last):
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\confusion_matrix.py", line 15, in <module>
+    model_data = np.load("model.npy", allow_pickle=True).item()
+  File "C:\Users\rumaiz\miniconda3\envs\ml\lib\site-packages\numpy\lib\_npyio_impl.py", line 451, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+FileNotFoundError: [Errno 2] No such file or directory: 'model.npy'

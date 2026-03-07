@@ -26,7 +26,9 @@ class NeuralLayer:
         self.activation = activation
 
         # Weight initialization
-        if weight_init == "xavier":
+        if weight_init == "zeros":
+            self.W = np.zeros((input_size, output_size))
+        elif weight_init == "xavier":
             limit = np.sqrt(6 / (input_size + output_size))
             self.W = np.random.uniform(-limit, limit, (input_size, output_size))
         else:

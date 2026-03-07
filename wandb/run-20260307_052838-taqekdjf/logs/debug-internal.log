@@ -1,0 +1,11 @@
+{"time":"2026-03-07T05:28:41.1911478+05:30","level":"INFO","msg":"stream: starting","core version":"0.25.0"}
+{"time":"2026-03-07T05:28:41.6349488+05:30","level":"INFO","msg":"stream: created new stream","id":"taqekdjf"}
+{"time":"2026-03-07T05:28:41.6356283+05:30","level":"INFO","msg":"handler: started","stream_id":"taqekdjf"}
+{"time":"2026-03-07T05:28:41.6391756+05:30","level":"INFO","msg":"stream: started","id":"taqekdjf"}
+{"time":"2026-03-07T05:28:41.6397384+05:30","level":"INFO","msg":"writer: started","stream_id":"taqekdjf"}
+{"time":"2026-03-07T05:28:41.6397384+05:30","level":"INFO","msg":"sender: started","stream_id":"taqekdjf"}
+{"time":"2026-03-07T05:29:09.8015002+05:30","level":"INFO","msg":"stream: closing","id":"taqekdjf"}
+{"time":"2026-03-07T05:29:11.4619721+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-03-07T05:29:11.9064408+05:30","level":"INFO","msg":"handler: closed","stream_id":"taqekdjf"}
+{"time":"2026-03-07T05:29:11.9172494+05:30","level":"INFO","msg":"sender: closed","stream_id":"taqekdjf"}
+{"time":"2026-03-07T05:29:11.9172494+05:30","level":"INFO","msg":"stream: closed","id":"taqekdjf"}

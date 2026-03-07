@@ -1,0 +1,17 @@
+Loading dataset...
+Traceback (most recent call last):
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 131, in <module>
+    main()
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 88, in main
+    X_train, y_train, X_test, y_test = load_data(args.dataset)
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\utils\data_loader.py", line 37, in load_data
+    raise ValueError("Invalid dataset name")
+ValueError: Invalid dataset name
+Traceback (most recent call last):
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 131, in <module>
+    main()
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\train.py", line 88, in main
+    X_train, y_train, X_test, y_test = load_data(args.dataset)
+  File "C:\STORE\iit\dl\da6401_assignment_1\src\utils\data_loader.py", line 37, in load_data
+    raise ValueError("Invalid dataset name")
+ValueError: Invalid dataset name

@@ -1,0 +1,11 @@
+{"time":"2026-03-07T08:53:35.5558866+05:30","level":"INFO","msg":"stream: starting","core version":"0.25.0"}
+{"time":"2026-03-07T08:53:35.9771286+05:30","level":"INFO","msg":"stream: created new stream","id":"ddqbimr1"}
+{"time":"2026-03-07T08:53:35.9771286+05:30","level":"INFO","msg":"handler: started","stream_id":"ddqbimr1"}
+{"time":"2026-03-07T08:53:35.9793962+05:30","level":"INFO","msg":"stream: started","id":"ddqbimr1"}
+{"time":"2026-03-07T08:53:35.9793962+05:30","level":"INFO","msg":"sender: started","stream_id":"ddqbimr1"}
+{"time":"2026-03-07T08:53:35.9793962+05:30","level":"INFO","msg":"writer: started","stream_id":"ddqbimr1"}
+{"time":"2026-03-07T08:54:02.2801906+05:30","level":"INFO","msg":"stream: closing","id":"ddqbimr1"}
+{"time":"2026-03-07T08:54:03.2067576+05:30","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-03-07T08:54:03.7841959+05:30","level":"INFO","msg":"handler: closed","stream_id":"ddqbimr1"}
+{"time":"2026-03-07T08:54:03.7853648+05:30","level":"INFO","msg":"sender: closed","stream_id":"ddqbimr1"}
+{"time":"2026-03-07T08:54:03.7853648+05:30","level":"INFO","msg":"stream: closed","id":"ddqbimr1"}

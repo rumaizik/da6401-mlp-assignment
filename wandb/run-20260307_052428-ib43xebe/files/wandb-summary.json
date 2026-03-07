@@ -1,0 +1,1 @@
+{"grad_norm_layer1":1.0008625369648212,"_timestamp":1.77284130319585e+09,"_step":9,"_runtime":31,"_wandb":{"runtime":31},"loss":0.2284903447724792,"train_accuracy":0.9361481481481482,"val_accuracy":0.9496666666666667}

@@ -12,7 +12,7 @@ wandb.init(project="da6401-mlp")
 X_train, y_train, X_test, y_test = load_data("mnist")
 
 # Load saved model
-model_data = np.load("model.npy", allow_pickle=True).item()
+model_data = np.load("best_model.npy", allow_pickle=True).item()
 
 # Recreate model arguments
 class Args:
