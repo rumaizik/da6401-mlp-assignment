@@ -26,8 +26,8 @@ def parse_arguments():
 
     parser.add_argument("--optimizer", type=str, default="adam")
 
-    parser.add_argument("--hidden_layers", type=str,
-                        default="128, 64")
+    parser.add_argument("--hidden_layers", nargs="+", type=int,
+                        default=[128, 64])
 
     parser.add_argument("--activation", type=str, default="relu")
 
@@ -72,7 +72,7 @@ def save_model(model, args):
 def main():
 
     args = parse_arguments()
-    args.hidden_layers = [int(x) for x in args.hidden_layers.replace(",", " ").split()]
+    
     wandb.init(
     project="da6401-mlp",
     config={
