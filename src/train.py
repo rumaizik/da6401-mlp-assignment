@@ -25,6 +25,8 @@ def parse_arguments():
     parser.add_argument("--learning_rate", type=float, default=0.001)
 
     parser.add_argument("--optimizer", type=str, default="adam")
+    parser.add_argument("--num_layers", type=int, default=2)
+    parser.add_argument("--hidden_size", nargs="+", type=int)
 
     parser.add_argument("--hidden_layers", nargs="+", type=int,
                         default=[128, 64])
@@ -72,6 +74,8 @@ def save_model(model, args):
 def main():
 
     args = parse_arguments()
+    if args.hidden_size is not None:
+    args.hidden_layers = args.hidden_size
     
     wandb.init(
     project="da6401-mlp",
