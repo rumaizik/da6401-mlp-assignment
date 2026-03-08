@@ -38,8 +38,8 @@ class NeuralNetwork:
                 input_size,
                 hidden_size,
                 activation=activation(),
-                weight_init=args.weight_init,
-                weight_decay=args.weight_decay
+                weight_init= getattr(args, "weight_init","xavier"),
+                weight_decay= getattr(args,"weight_decay",0.0)
             )
 
             self.layers.append(layer)
@@ -51,8 +51,8 @@ class NeuralNetwork:
             input_size,
             getattr(args,"output_size",10),
             activation=Softmax(),
-            weight_init=args.weight_init,
-            weight_decay=args.weight_decay
+            weight_init= weight_init,
+            weight_decay= getattr(args,"weight_decay",0.0)
         )
 
         self.layers.append(output_layer)
@@ -87,7 +87,11 @@ class NeuralNetwork:
 
         else:
             raise ValueError("Unsupported optimizer")
-
+    # --------------------------------------------------        
+    def set_weights(self, weights):
+        for layer, (W, b) in zip(self.layers, weights):
+            layer.W = W
+            layer.b = b
     # --------------------------------------------------
 
     def forward(self, X):
