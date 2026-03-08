@@ -50,9 +50,14 @@ def parse_arguments():
 
 def save_model(model, args):
 
-    weights =np.array( [(layer.W, layer.b) for layer in model.layers],dtype=object)
+    weights = []
+    biases = []
 
-    np.save(args.model_save_path, weights, allow_pickle=True)
+    for layer in model.layers:
+        weights.append(layer.W)
+        biases.append(layer.b)
+
+    np.save(args.model_save_path, [weights, biases], allow_pickle=True)
 
     print("Model saved")
 
