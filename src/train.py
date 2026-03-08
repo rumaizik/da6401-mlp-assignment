@@ -57,7 +57,7 @@ def save_model(model, args):
         weights.append(layer.W.copy())
         biases.append(layer.b.copy())
 
-    np.save(args.model_save_path, np.array([weights, biases],dtype=object) allow_pickle=True)
+    np.save(args.model_save_path, np.array([weights, biases],dtype=object), allow_pickle=True)
 
     print("Model saved")
 
