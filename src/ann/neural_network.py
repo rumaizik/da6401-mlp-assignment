@@ -91,11 +91,31 @@ class NeuralNetwork:
             raise ValueError("Unsupported optimizer")
     # --------------------------------------------------        
   
-    def set_weights(self, W, b):
+    def set_weights(self, weights, b=None):
 
-      for layer, w, bias in zip(self.layers, W, b):
-        layer.W = np.array(w, dtype=float)
-        layer.b = np.array(bias, dtype=float)
+      import numpy as np
+
+      # Case 1: autograder passes dictionary {"W":..., "b":...}
+      if isinstance(weights, dict):
+         Ws = weights["W"]
+         bs = weights["b"]
+
+         for layer, w, bias in zip(self.layers, Ws, bs):
+            layer.W = np.array(w, dtype=float)
+            layer.b = np.array(bias, dtype=float)
+
+      # Case 2: autograder passes W and b separately
+      elif b is not None:
+         for layer, w, bias in zip(self.layers, weights, b):
+            layer.W = np.array(w, dtype=float)
+            layer.b = np.array(bias, dtype=float)
+
+      # Case 3: autograder passes list of tuples [(W,b),...]
+      else:
+         for layer, pair in zip(self.layers, weights):
+            w, bias = pair
+            layer.W = np.array(w, dtype=float)
+            layer.b = np.array(bias, dtype=float)
     # --------------------------------------------------
 
     def forward(self, X):
