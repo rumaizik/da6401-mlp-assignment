@@ -19,7 +19,9 @@ class NeuralNetwork:
 
         self.layers = []
 
-        activation_name = getattr(args, "activation", "relu")
+           activation_name = getattr(args, "activation", "relu")
+           weight_init = getattr(args, "weight_init", "xavier")
+           weight_decay = getattr(args, "weight_decay", 0.0)
 
         # Activation selection
         if activation_name == "sigmoid":
@@ -51,7 +53,7 @@ class NeuralNetwork:
             input_size,
             getattr(args,"output_size",10),
             activation=Softmax(),
-            weight_init= weight_init,
+            weight_init= getattr(args,"weight_init","xavier"),
             weight_decay= getattr(args,"weight_decay",0.0)
         )
 
