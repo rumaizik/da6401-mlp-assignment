@@ -52,8 +52,11 @@ def save_model(model, args):
 
     weights = [(layer.W.copy(), layer.b.copy()) for layer in model.layers]
 
-    import numpy as np
-    np.save(args.model_save_path, weights, allow_pickle=True)
+    arr = np.empty(len(weights), dtype=object)
+    for i in range(len(weights)):
+        arr[i] = weights[i]
+
+    np.save(args.model_save_path, arr, allow_pickle=True)
 
     print("Model saved")
 
