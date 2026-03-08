@@ -49,15 +49,11 @@ def parse_arguments():
 # --------------------------------------------------
 
 def save_model(model, args):
-    import numpy as np
 
     weights = [(layer.W.copy(), layer.b.copy()) for layer in model.layers]
 
-    arr = np.empty(len(weights), dtype=object)
-    for i, w in enumerate(weights):
-        arr[i] = w
-
-    np.save(args.model_save_path, arr, allow_pickle=True)
+    import numpy as np
+    np.save(args.model_save_path, weights, allow_pickle=True)
 
     print("Model saved")
 
