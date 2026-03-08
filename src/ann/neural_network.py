@@ -91,9 +91,9 @@ class NeuralNetwork:
             raise ValueError("Unsupported optimizer")
     # --------------------------------------------------        
     def set_weights(self, weights):
-        for layer, (W, b) in zip(self.layers, weights):
-            layer.W = W
-            layer.b = b
+      for layer, (W, b) in zip(self.layers, weights):
+        layer.W = np.array(W, dtype=float)
+        layer.b = np.array(b, dtype=float)
     # --------------------------------------------------
 
     def forward(self, X):
