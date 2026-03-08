@@ -50,7 +50,7 @@ def parse_arguments():
 
 def save_model(model, args):
 
-    weights = [(layer.W, layer.b) for layer in model.layers]
+    weights =np.array( [(layer.W, layer.b) for layer in model.layers],dtype=object)
 
     np.save(args.model_save_path, weights, allow_pickle=True)
 
