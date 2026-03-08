@@ -79,7 +79,7 @@ def main():
 
     args = parse_arguments()
     if args.hidden_size is not None:
-       args.hidden_layers = args.hidden_size
+       args.hidden_layers = [int(x) for x in args.hidden_size]
     
     wandb.init(
     project="da6401-mlp",
