@@ -107,8 +107,9 @@ class NeuralNetwork:
         # log gradients of first 5 neurons in first hidden layer
         
 
-        for i in range(5):
-           wandb.log({f"grad_neuron_{i}": np.linalg.norm(self.layers[0].grad_W[:,i])})   
+        for i in range(min(5, self.layers[0].grad_W.shape[1])):
+           wandb.log({f"grad_neuron_{i}": 
+        np.linalg.norm(self.layers[0].grad_W[:,i])})   
 
     # --------------------------------------------------
 
