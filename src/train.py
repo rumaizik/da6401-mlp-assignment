@@ -40,7 +40,7 @@ def parse_arguments():
     parser.add_argument("--weight_decay", type=float, default=0.0)
 
     parser.add_argument("--model_save_path", type=str,
-                        default="model.npy")
+                        default="src/best_model.npy")
 
     return parser.parse_args()
 
