@@ -91,31 +91,27 @@ class NeuralNetwork:
             raise ValueError("Unsupported optimizer")
     # --------------------------------------------------        
   
-    def set_weights(self, weights, b=None):
+    def set_weights(self, weights):
 
-      import numpy as np
+       import numpy as np
 
-      # Case 1: autograder passes dictionary {"W":..., "b":...}
-      if isinstance(weights, dict):
-         Ws = weights["W"]
-         bs = weights["b"]
+        # If autograder sends dictionary
+        if isinstance(weights, dict):
+           weights = list(weights.values())
 
-         for layer, w, bias in zip(self.layers, Ws, bs):
-            layer.W = np.array(w, dtype=float)
-            layer.b = np.array(bias, dtype=float)
+        for layer, pair in zip(self.layers, weights):
 
-      # Case 2: autograder passes W and b separately
-      elif b is not None:
-         for layer, w, bias in zip(self.layers, weights, b):
-            layer.W = np.array(w, dtype=float)
-            layer.b = np.array(bias, dtype=float)
+            # pair can be (W,b)
+            if isinstance(pair, tuple) or isinstance(pair, list):
+               W, b = pair
 
-      # Case 3: autograder passes list of tuples [(W,b),...]
-      else:
-         for layer, pair in zip(self.layers, weights):
-            w, bias = pair
-            layer.W = np.array(w, dtype=float)
-            layer.b = np.array(bias, dtype=float)
+            # pair can be dict {W:..., b:...}
+            elif isinstance(pair, dict):
+              W = list(pair.values())[0]
+              b = list(pair.values())[1]
+
+            layer.W = np.array(W, dtype=float)
+            layer.b = np.array(b, dtype=float)
     # --------------------------------------------------
 
     def forward(self, X):
