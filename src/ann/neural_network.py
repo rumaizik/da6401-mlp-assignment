@@ -19,18 +19,20 @@ class NeuralNetwork:
 
         self.layers = []
 
+        activation_name = getattr(args, "activation", "relu")
+
         # Activation selection
-        if args.activation == "sigmoid":
-            activation = Sigmoid
-        elif args.activation == "tanh":
+        if activation_name == "sigmoid":
+           activation = Sigmoid
+        elif activation_name == "tanh":
             activation = Tanh
         else:
             activation = ReLU
 
-        input_size = args.input_size
+        input_size = getattr(args,"input_size",784)
 
         # Hidden layers
-        for hidden_size in args.hidden_layers:
+        for hidden_size in getattr(args,"hidden_layers",[128]):
 
             layer = NeuralLayer(
                 input_size,
@@ -47,7 +49,7 @@ class NeuralNetwork:
         # Output layer
         output_layer = NeuralLayer(
             input_size,
-            args.output_size,
+            getattr(args,"output_size",10),
             activation=Softmax(),
             weight_init=args.weight_init,
             weight_decay=args.weight_decay
@@ -56,29 +58,32 @@ class NeuralNetwork:
         self.layers.append(output_layer)
 
         # Loss
-        if args.loss == "cross_entropy":
+        loss_name = getattr(args, "loss", "cross_entropy")
+        if loss_name == "cross_entropy":
             self.loss_fn = CrossEntropyLoss()
         else:
             self.loss_fn = MeanSquaredError()
 
         # Optimizer
-        # Optimizer
-        if args.optimizer == "sgd":
-            self.optimizer = SGD(args.learning_rate)
+        optimizer_name = getattr(args, "optimizer", "sgd")
+        lr = getattr(args, "learning_rate", 0.001)
 
-        elif args.optimizer == "momentum":
-            self.optimizer = Momentum(args.learning_rate)
+        if optimizer_name == "sgd":
+            self.optimizer = SGD(lr)
 
-        elif args.optimizer == "nag":
-            self.optimizer = NAG(args.learning_rate)
+        elif optimizer_name  == "momentum":
+            self.optimizer = Momentum(lr)
 
-        elif args.optimizer == "rmsprop":
-            self.optimizer = RMSProp(args.learning_rate)
+        elif optimizer_name  == "nag":
+            self.optimizer = NAG(lr)
 
-        elif args.optimizer == "adam":
-            self.optimizer = Adam(args.learning_rate)
-        elif args.optimizer == "nadam":
-            self.optimizer = Nadam(args.learning_rate)    
+        elif optimizer_name  == "rmsprop":
+            self.optimizer = RMSProp(lr)
+
+        elif optimizer_name  == "adam":
+            self.optimizer = Adam(lr)
+        elif optimizer_name  == "nadam":
+            self.optimizer = Nadam(lr)    
 
         else:
             raise ValueError("Unsupported optimizer")
