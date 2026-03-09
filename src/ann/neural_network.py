@@ -192,24 +192,26 @@ class NeuralNetwork:
     # Required by autograder
     # --------------------------------------------------
 
+    # --------------------------------------------------
+# Required by autograder
+# --------------------------------------------------
+
     def get_weights(self):
 
-        params = []
+        weights = []
 
         for layer in self.layers:
+            weights.append(layer.W)
+            weights.append(layer.b)
 
-            # Only layers with weights (Dense layers)
-            if hasattr(layer, "W") and hasattr(layer, "b"):
-               params.append(layer.W)
-               params.append(layer.b)
+        return weights
 
-        return params
-
-    # --------------------------------------------------
 
     def set_weights(self, weights):
 
-        for layer, (W, b) in zip(self.layers, weights):
+        idx = 0
 
-            layer.W = np.array(W, dtype=float)
-            layer.b = np.array(b, dtype=float)
+        for layer in self.layers:
+            layer.W = weights[idx]
+            layer.b = weights[idx + 1]
+            idx += 2
