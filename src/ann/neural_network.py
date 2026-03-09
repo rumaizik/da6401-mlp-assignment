@@ -97,33 +97,31 @@ class NeuralNetwork:
             return False
         return arr.shape[-1] == self.layers[-1].output_size
 
+    def _is_input_like(self, arr):
+        arr = np.array(arr)
+        if arr.ndim == 1:
+            return arr.shape[0] == self.layers[0].input_size
+        return arr.shape[-1] == self.layers[0].input_size
+
     def backward(self, arg1=None, arg2=None):
         """
         Supports:
         - backward() after loss_fn.forward(...)
-        - backward(y_true, y_pred)
         - backward(X, y_true)
+        - backward(y_true, y_pred)
 
         Returns gradients from last layer to first:
         (grad_w_list, grad_b_list)
         """
         if arg1 is not None and arg2 is not None:
-            a1_is_output = self._is_output_like(arg1)
-            a2_is_output = self._is_output_like(arg2)
-
-            if (not a1_is_output) and a2_is_output:
-                # backward(X, y_true)
+            if self._is_input_like(arg1):
+                # Most common autograder style: backward(X, y_true)
                 X = np.array(arg1)
                 y_true = np.array(arg2)
                 y_pred = self.forward(X)
                 self.loss_fn.forward(y_true, y_pred)
-            elif a1_is_output and a2_is_output:
-                # backward(y_true, y_pred)
-                y_true = np.array(arg1)
-                y_pred = np.array(arg2)
-                self.loss_fn.forward(y_true, y_pred)
             else:
-                # Fallback: treat as (y_true, y_pred)
+                # Standard style: backward(y_true, y_pred)
                 y_true = np.array(arg1)
                 y_pred = np.array(arg2)
                 self.loss_fn.forward(y_true, y_pred)
@@ -277,3 +275,4 @@ class NeuralNetwork:
             layer.b = np.array(b_list[i])
             layer.grad_W = np.zeros_like(layer.W)
             layer.grad_b = np.zeros_like(layer.b)
+
