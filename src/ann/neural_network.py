@@ -22,7 +22,6 @@ class NeuralNetwork:
 
         activation_name = getattr(args, "activation", "relu")
 
-        # Activation selection
         if activation_name == "sigmoid":
             self.hidden_activation_cls = Sigmoid
         elif activation_name == "tanh":
@@ -31,8 +30,8 @@ class NeuralNetwork:
             self.hidden_activation_cls = ReLU
 
         input_size = getattr(args, "input_size", 784)
+        output_size = getattr(args, "output_size", 10)
 
-        # Hidden layer configuration (supports both hidden_layers and hidden_size + num_layers)
         hidden_layers = getattr(args, "hidden_layers", None)
         if hidden_layers is None:
             hidden_size = getattr(args, "hidden_size", [128])
@@ -46,36 +45,32 @@ class NeuralNetwork:
             else:
                 hidden_layers = [128]
 
-        # Hidden layers
         for hidden_size in hidden_layers:
             layer = NeuralLayer(
                 input_size,
                 hidden_size,
                 activation=self.hidden_activation_cls(),
                 weight_init=self.weight_init,
-                weight_decay=self.weight_decay
+                weight_decay=self.weight_decay,
             )
             self.layers.append(layer)
             input_size = hidden_size
 
-        # Output layer (logits)
         output_layer = NeuralLayer(
             input_size,
-            getattr(args, "output_size", 10),
+            output_size,
             activation=None,
             weight_init=self.weight_init,
-            weight_decay=self.weight_decay
+            weight_decay=self.weight_decay,
         )
         self.layers.append(output_layer)
 
-        # Loss
         loss_name = getattr(args, "loss", "cross_entropy")
         if loss_name == "cross_entropy":
             self.loss_fn = CrossEntropyLoss()
         else:
             self.loss_fn = MeanSquaredError()
 
-        # Optimizer
         optimizer_name = getattr(args, "optimizer", "sgd")
         lr = getattr(args, "learning_rate", 0.001)
 
@@ -90,34 +85,58 @@ class NeuralNetwork:
         else:
             raise ValueError("Unsupported optimizer")
 
-    # --------------------------------------------------
-
     def forward(self, X):
         output = X
         for layer in self.layers:
             output = layer.forward(output)
         return output
 
-    # --------------------------------------------------
+    def _is_output_like(self, arr):
+        arr = np.array(arr)
+        if arr.ndim == 1:
+            return False
+        return arr.shape[-1] == self.layers[-1].output_size
 
-    def backward(self, y_true=None, y_pred=None):
+    def backward(self, arg1=None, arg2=None):
         """
-        Compatible with autograder calls like model.backward(y_true, y_pred).
-        Returns (grad_W_list, grad_b_list).
+        Supports:
+        - backward() after loss_fn.forward(...)
+        - backward(y_true, y_pred)
+        - backward(X, y_true)
+
+        Returns gradients from last layer to first:
+        (grad_w_list, grad_b_list)
         """
-        if y_true is not None and y_pred is not None:
-            self.loss_fn.forward(y_true, y_pred)
+        if arg1 is not None and arg2 is not None:
+            a1_is_output = self._is_output_like(arg1)
+            a2_is_output = self._is_output_like(arg2)
+
+            if (not a1_is_output) and a2_is_output:
+                # backward(X, y_true)
+                X = np.array(arg1)
+                y_true = np.array(arg2)
+                y_pred = self.forward(X)
+                self.loss_fn.forward(y_true, y_pred)
+            elif a1_is_output and a2_is_output:
+                # backward(y_true, y_pred)
+                y_true = np.array(arg1)
+                y_pred = np.array(arg2)
+                self.loss_fn.forward(y_true, y_pred)
+            else:
+                # Fallback: treat as (y_true, y_pred)
+                y_true = np.array(arg1)
+                y_pred = np.array(arg2)
+                self.loss_fn.forward(y_true, y_pred)
 
         grad = self.loss_fn.backward()
 
         for layer in reversed(self.layers):
             grad = layer.backward(grad)
 
-        grad_W_list = [layer.grad_W for layer in self.layers]
-        grad_b_list = [layer.grad_b for layer in self.layers]
+        # Required order: last layer to first layer
+        grad_W_list = [layer.grad_W for layer in reversed(self.layers)]
+        grad_b_list = [layer.grad_b for layer in reversed(self.layers)]
         return grad_W_list, grad_b_list
-
-    # --------------------------------------------------
 
     def update_weights(self):
         for i, layer in enumerate(self.layers):
@@ -125,8 +144,6 @@ class NeuralNetwork:
                 self.optimizer.update(layer, i)
             else:
                 self.optimizer.update(layer)
-
-    # --------------------------------------------------
 
     def train(self, X_train, y_train, X_val, y_val, epochs, batch_size):
         n = X_train.shape[0]
@@ -161,14 +178,14 @@ class NeuralNetwork:
                 f"Val Acc: {val_accuracy:.4f}"
             )
 
-            wandb.log({
-                "loss": avg_loss,
-                "train_accuracy": train_accuracy,
-                "val_accuracy": val_accuracy,
-                "grad_norm_layer1": np.linalg.norm(self.layers[0].grad_W)
-            })
-
-    # --------------------------------------------------
+            wandb.log(
+                {
+                    "loss": avg_loss,
+                    "train_accuracy": train_accuracy,
+                    "val_accuracy": val_accuracy,
+                    "grad_norm_layer1": np.linalg.norm(self.layers[0].grad_W),
+                }
+            )
 
     def evaluate(self, X, y):
         y_pred = self.forward(X)
@@ -176,9 +193,6 @@ class NeuralNetwork:
         true = np.argmax(y, axis=1)
         return np.mean(predictions == true)
 
-    # --------------------------------------------------
-    # Required by autograder
-    # --------------------------------------------------
     def get_weights(self):
         weights = [layer.W for layer in self.layers]
         biases = [layer.b for layer in self.layers]
@@ -197,13 +211,11 @@ class NeuralNetwork:
     def _extract_weight_lists(self, weights):
         weights = self._normalize_weight_container(weights)
 
-        # {"weights": [...], "biases": [...]} format
         if isinstance(weights, dict) and "weights" in weights and "biases" in weights:
             w_list = self._normalize_weight_container(weights["weights"])
             b_list = self._normalize_weight_container(weights["biases"])
             return list(w_list), list(b_list)
 
-        # {"W0":..., "b0":..., ...} format
         if isinstance(weights, dict):
             idx = 0
             w_list, b_list = [], []
@@ -214,14 +226,12 @@ class NeuralNetwork:
             if idx > 0:
                 return w_list, b_list
 
-        # [weights_list, biases_list] format
         if isinstance(weights, (list, tuple)) and len(weights) == 2:
             w_list = self._normalize_weight_container(weights[0])
             b_list = self._normalize_weight_container(weights[1])
             if isinstance(w_list, (list, tuple)) and isinstance(b_list, (list, tuple)):
                 return list(w_list), list(b_list)
 
-        # [W0, b0, W1, b1, ...] format
         if isinstance(weights, (list, tuple)) and len(weights) % 2 == 0 and len(weights) > 0:
             w_list, b_list = [], []
             for i in range(0, len(weights), 2):
@@ -252,7 +262,6 @@ class NeuralNetwork:
         if len(w_list) != len(b_list):
             raise ValueError("Weights and biases length mismatch")
 
-        # If layer count or shapes don't match, rebuild architecture from fixed weights.
         need_rebuild = len(self.layers) != len(w_list)
         if not need_rebuild:
             for i, layer in enumerate(self.layers):
