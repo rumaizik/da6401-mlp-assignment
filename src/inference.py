@@ -1,10 +1,11 @@
 """
 Inference Script
-DA6401 Assignment compatible (logits output + dict weight format)
+DA6401 Assignment compatible (logits output + robust weight/config loading)
 """
 
 import argparse
 import json
+import os
 import numpy as np
 
 from utils.data_loader import load_data
@@ -43,12 +44,41 @@ def parse_arguments():
 # Load model
 # =====================================================
 
-def load_model(model_path, config_path="src/best_config.json"):
+def _resolve_existing_path(candidates):
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+    return None
+
+
+def load_model(model_path, config_path=None):
     print("Loading model...")
 
-    weights_dict = np.load(model_path, allow_pickle=True).item()
+    resolved_model = _resolve_existing_path([
+        model_path,
+        "src/best_model.npy",
+        "best_model.npy",
+    ])
+    if resolved_model is None:
+        raise FileNotFoundError("Could not find model file")
 
-    with open(config_path, "r") as f:
+    loaded = np.load(resolved_model, allow_pickle=True)
+    try:
+        weights_obj = loaded.item()
+    except Exception:
+        weights_obj = loaded
+
+    resolved_config = _resolve_existing_path([
+        config_path,
+        "src/best_config.json",
+        "best_config.json",
+        "src/config.json",
+        "config.json",
+    ])
+    if resolved_config is None:
+        raise FileNotFoundError("Could not find config file")
+
+    with open(resolved_config, "r") as f:
         config = json.load(f)
 
     class Args:
@@ -57,16 +87,16 @@ def load_model(model_path, config_path="src/best_config.json"):
     args = Args()
     args.input_size = config["input_size"]
     args.output_size = config["output_size"]
-    args.hidden_layers = config["hidden_layers"]
-    args.activation = config["activation"]
-    args.loss = config["loss"]
-    args.optimizer = config["optimizer"]
-    args.learning_rate = config["learning_rate"]
+    args.hidden_layers = config.get("hidden_layers", config.get("hidden_size", [128, 64]))
+    args.activation = config.get("activation", "relu")
+    args.loss = config.get("loss", "cross_entropy")
+    args.optimizer = config.get("optimizer", "sgd")
+    args.learning_rate = config.get("learning_rate", 0.001)
     args.weight_decay = config.get("weight_decay", 0.0)
     args.weight_init = config.get("weight_init", "xavier")
 
     model = NeuralNetwork(args)
-    model.set_weights(weights_dict)
+    model.set_weights(weights_obj)
 
     return model
 
@@ -137,7 +167,8 @@ def main():
     model = load_model(args.model_path)
 
     print("Loading dataset...")
-    _, _, X_test, y_test = load_data(args.dataset)
+    dataset_name = "fashion_mnist" if args.dataset == "fashion" else args.dataset
+    _, _, X_test, y_test = load_data(dataset_name)
 
     loss, accuracy, precision, recall, f1 = evaluate_model(model, X_test, y_test)
 
