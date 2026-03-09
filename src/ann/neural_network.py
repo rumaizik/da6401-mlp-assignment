@@ -93,23 +93,9 @@ class NeuralNetwork:
   
     def set_weights(self, weights):
 
-       import numpy as np
+        import numpy as np
 
-        # If autograder sends dictionary
-        if isinstance(weights, dict):
-           weights = list(weights.values())
-
-        for layer, pair in zip(self.layers, weights):
-
-            # pair can be (W,b)
-            if isinstance(pair, tuple) or isinstance(pair, list):
-               W, b = pair
-
-            # pair can be dict {W:..., b:...}
-            elif isinstance(pair, dict):
-              W = list(pair.values())[0]
-              b = list(pair.values())[1]
-
+        for layer, (W, b) in zip(self.layers, weights):
             layer.W = np.array(W, dtype=float)
             layer.b = np.array(b, dtype=float)
     # --------------------------------------------------
