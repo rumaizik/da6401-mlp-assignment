@@ -30,11 +30,8 @@ class NeuralNetwork:
 
         input_size = getattr(args, "input_size", 784)
 
-        # -------------------------
         # Hidden layers
-        # -------------------------
         for hidden_size in getattr(args, "hidden_layers", [128]):
-
             layer = NeuralLayer(
                 input_size,
                 hidden_size,
@@ -42,16 +39,10 @@ class NeuralNetwork:
                 weight_init=getattr(args, "weight_init", "xavier"),
                 weight_decay=getattr(args, "weight_decay", 0.0)
             )
-
             self.layers.append(layer)
-
             input_size = hidden_size
 
-        # -------------------------
-        # Output layer
-        # IMPORTANT: return logits
-        # No softmax here
-        # -------------------------
+        # Output layer (logits)
         output_layer = NeuralLayer(
             input_size,
             getattr(args, "output_size", 10),
@@ -59,49 +50,36 @@ class NeuralNetwork:
             weight_init=getattr(args, "weight_init", "xavier"),
             weight_decay=getattr(args, "weight_decay", 0.0)
         )
-
         self.layers.append(output_layer)
 
-        # -------------------------
         # Loss
-        # -------------------------
         loss_name = getattr(args, "loss", "cross_entropy")
-
         if loss_name == "cross_entropy":
             self.loss_fn = CrossEntropyLoss()
         else:
             self.loss_fn = MeanSquaredError()
 
-        # -------------------------
         # Optimizer
-        # -------------------------
         optimizer_name = getattr(args, "optimizer", "sgd")
         lr = getattr(args, "learning_rate", 0.001)
 
         if optimizer_name == "sgd":
             self.optimizer = SGD(lr)
-
         elif optimizer_name == "momentum":
             self.optimizer = Momentum(lr)
-
         elif optimizer_name == "nag":
             self.optimizer = NAG(lr)
-
         elif optimizer_name == "rmsprop":
             self.optimizer = RMSProp(lr)
-
         else:
             raise ValueError("Unsupported optimizer")
 
     # --------------------------------------------------
 
     def forward(self, X):
-
         output = X
-
         for layer in self.layers:
             output = layer.forward(output)
-
         return output
 
     # --------------------------------------------------
@@ -109,7 +87,8 @@ class NeuralNetwork:
     def backward(self, y_true=None, y_pred=None):
         """
         Backward pass.
-        Accept optional (y_true, y_pred) for autograder compatibility.
+        Compatible with autograder calls like model.backward(y_true, y_pred).
+        Returns (grad_W_list, grad_b_list).
         """
         if y_true is not None and y_pred is not None:
             self.loss_fn.forward(y_true, y_pred)
@@ -119,14 +98,14 @@ class NeuralNetwork:
         for layer in reversed(self.layers):
             grad = layer.backward(grad)
 
-        return grad
+        grad_W_list = [layer.grad_W for layer in self.layers]
+        grad_b_list = [layer.grad_b for layer in self.layers]
+        return grad_W_list, grad_b_list
 
     # --------------------------------------------------
 
     def update_weights(self):
-
         for i, layer in enumerate(self.layers):
-
             if self.optimizer.__class__.__name__ in ["Momentum", "NAG", "RMSProp"]:
                 self.optimizer.update(layer, i)
             else:
@@ -135,31 +114,24 @@ class NeuralNetwork:
     # --------------------------------------------------
 
     def train(self, X_train, y_train, X_val, y_val, epochs, batch_size):
-
         n = X_train.shape[0]
 
         for epoch in range(epochs):
-
             permutation = np.random.permutation(n)
-
             X_train = X_train[permutation]
             y_train = y_train[permutation]
 
             total_loss = 0
 
             for i in range(0, n, batch_size):
-
                 X_batch = X_train[i:i + batch_size]
                 y_batch = y_train[i:i + batch_size]
 
                 y_pred = self.forward(X_batch)
-
                 loss = self.loss_fn.forward(y_batch, y_pred)
-
                 total_loss += loss
 
                 self.backward()
-
                 self.update_weights()
 
             avg_loss = total_loss / max(1, (n // batch_size))
@@ -184,15 +156,10 @@ class NeuralNetwork:
     # --------------------------------------------------
 
     def evaluate(self, X, y):
-
         y_pred = self.forward(X)
-
         predictions = np.argmax(y_pred, axis=1)
         true = np.argmax(y, axis=1)
-
-        accuracy = np.mean(predictions == true)
-
-        return accuracy
+        return np.mean(predictions == true)
 
     # --------------------------------------------------
     # Required by autograder
@@ -202,12 +169,23 @@ class NeuralNetwork:
         biases = [layer.b for layer in self.layers]
         return {"weights": weights, "biases": biases}
 
+    def _normalize_weight_container(self, weights):
+        if isinstance(weights, np.ndarray):
+            if weights.shape == ():
+                try:
+                    return weights.item()
+                except Exception:
+                    return weights
+            return list(weights)
+        return weights
+
     def set_weights(self, weights):
+        weights = self._normalize_weight_container(weights)
 
         # Format 1: {"weights": [...], "biases": [...]}.
         if isinstance(weights, dict) and "weights" in weights and "biases" in weights:
-            w_list = weights["weights"]
-            b_list = weights["biases"]
+            w_list = self._normalize_weight_container(weights["weights"])
+            b_list = self._normalize_weight_container(weights["biases"])
             for i, layer in enumerate(self.layers):
                 layer.W = np.array(w_list[i])
                 layer.b = np.array(b_list[i])
@@ -224,7 +202,8 @@ class NeuralNetwork:
 
         # Format 3: [weights_list, biases_list].
         if isinstance(weights, (list, tuple)) and len(weights) == 2:
-            w_list, b_list = weights
+            w_list = self._normalize_weight_container(weights[0])
+            b_list = self._normalize_weight_container(weights[1])
             if len(w_list) == len(self.layers) and len(b_list) == len(self.layers):
                 for i, layer in enumerate(self.layers):
                     layer.W = np.array(w_list[i])
