@@ -17,27 +17,43 @@ class NeuralNetwork:
     def __init__(self, args):
 
         self.layers = []
+        self.weight_decay = getattr(args, "weight_decay", 0.0)
+        self.weight_init = getattr(args, "weight_init", "xavier")
 
         activation_name = getattr(args, "activation", "relu")
 
         # Activation selection
         if activation_name == "sigmoid":
-            activation = Sigmoid
+            self.hidden_activation_cls = Sigmoid
         elif activation_name == "tanh":
-            activation = Tanh
+            self.hidden_activation_cls = Tanh
         else:
-            activation = ReLU
+            self.hidden_activation_cls = ReLU
 
         input_size = getattr(args, "input_size", 784)
 
+        # Hidden layer configuration (supports both hidden_layers and hidden_size + num_layers)
+        hidden_layers = getattr(args, "hidden_layers", None)
+        if hidden_layers is None:
+            hidden_size = getattr(args, "hidden_size", [128])
+            num_layers = getattr(args, "num_layers", 1)
+            if isinstance(hidden_size, int):
+                hidden_layers = [hidden_size] * num_layers
+            elif isinstance(hidden_size, (list, tuple)):
+                hidden_layers = list(hidden_size)
+                if len(hidden_layers) == 1 and num_layers > 1:
+                    hidden_layers = hidden_layers * num_layers
+            else:
+                hidden_layers = [128]
+
         # Hidden layers
-        for hidden_size in getattr(args, "hidden_layers", [128]):
+        for hidden_size in hidden_layers:
             layer = NeuralLayer(
                 input_size,
                 hidden_size,
-                activation=activation(),
-                weight_init=getattr(args, "weight_init", "xavier"),
-                weight_decay=getattr(args, "weight_decay", 0.0)
+                activation=self.hidden_activation_cls(),
+                weight_init=self.weight_init,
+                weight_decay=self.weight_decay
             )
             self.layers.append(layer)
             input_size = hidden_size
@@ -47,8 +63,8 @@ class NeuralNetwork:
             input_size,
             getattr(args, "output_size", 10),
             activation=None,
-            weight_init=getattr(args, "weight_init", "xavier"),
-            weight_decay=getattr(args, "weight_decay", 0.0)
+            weight_init=self.weight_init,
+            weight_decay=self.weight_decay
         )
         self.layers.append(output_layer)
 
@@ -86,7 +102,6 @@ class NeuralNetwork:
 
     def backward(self, y_true=None, y_pred=None):
         """
-        Backward pass.
         Compatible with autograder calls like model.backward(y_true, y_pred).
         Returns (grad_W_list, grad_b_list).
         """
@@ -169,54 +184,87 @@ class NeuralNetwork:
         biases = [layer.b for layer in self.layers]
         return {"weights": weights, "biases": biases}
 
-    def _normalize_weight_container(self, weights):
-        if isinstance(weights, np.ndarray):
-            if weights.shape == ():
+    def _normalize_weight_container(self, obj):
+        if isinstance(obj, np.ndarray):
+            if obj.shape == ():
                 try:
-                    return weights.item()
+                    return obj.item()
                 except Exception:
-                    return weights
-            return list(weights)
-        return weights
+                    return obj
+            return list(obj)
+        return obj
 
-    def set_weights(self, weights):
+    def _extract_weight_lists(self, weights):
         weights = self._normalize_weight_container(weights)
 
-        # Format 1: {"weights": [...], "biases": [...]}.
+        # {"weights": [...], "biases": [...]} format
         if isinstance(weights, dict) and "weights" in weights and "biases" in weights:
             w_list = self._normalize_weight_container(weights["weights"])
             b_list = self._normalize_weight_container(weights["biases"])
-            for i, layer in enumerate(self.layers):
-                layer.W = np.array(w_list[i])
-                layer.b = np.array(b_list[i])
-            return
+            return list(w_list), list(b_list)
 
-        # Format 2: {"W0":..., "b0":..., ...}.
-        if isinstance(weights, dict) and all(
-            f"W{i}" in weights and f"b{i}" in weights for i in range(len(self.layers))
-        ):
-            for i, layer in enumerate(self.layers):
-                layer.W = np.array(weights[f"W{i}"])
-                layer.b = np.array(weights[f"b{i}"])
-            return
+        # {"W0":..., "b0":..., ...} format
+        if isinstance(weights, dict):
+            idx = 0
+            w_list, b_list = [], []
+            while f"W{idx}" in weights and f"b{idx}" in weights:
+                w_list.append(weights[f"W{idx}"])
+                b_list.append(weights[f"b{idx}"])
+                idx += 1
+            if idx > 0:
+                return w_list, b_list
 
-        # Format 3: [weights_list, biases_list].
+        # [weights_list, biases_list] format
         if isinstance(weights, (list, tuple)) and len(weights) == 2:
             w_list = self._normalize_weight_container(weights[0])
             b_list = self._normalize_weight_container(weights[1])
-            if len(w_list) == len(self.layers) and len(b_list) == len(self.layers):
-                for i, layer in enumerate(self.layers):
-                    layer.W = np.array(w_list[i])
-                    layer.b = np.array(b_list[i])
-                return
+            if isinstance(w_list, (list, tuple)) and isinstance(b_list, (list, tuple)):
+                return list(w_list), list(b_list)
 
-        # Format 4: [W0, b0, W1, b1, ...].
-        if isinstance(weights, (list, tuple)) and len(weights) == 2 * len(self.layers):
-            idx = 0
-            for layer in self.layers:
-                layer.W = np.array(weights[idx])
-                layer.b = np.array(weights[idx + 1])
-                idx += 2
-            return
+        # [W0, b0, W1, b1, ...] format
+        if isinstance(weights, (list, tuple)) and len(weights) % 2 == 0 and len(weights) > 0:
+            w_list, b_list = [], []
+            for i in range(0, len(weights), 2):
+                w_list.append(weights[i])
+                b_list.append(weights[i + 1])
+            return w_list, b_list
 
         raise ValueError("Unsupported weight format for set_weights")
+
+    def _rebuild_layers_from_weights(self, w_list):
+        self.layers = []
+        for i, w in enumerate(w_list):
+            w_arr = np.array(w)
+            in_dim, out_dim = w_arr.shape
+            activation = self.hidden_activation_cls() if i < len(w_list) - 1 else None
+            layer = NeuralLayer(
+                in_dim,
+                out_dim,
+                activation=activation,
+                weight_init=self.weight_init,
+                weight_decay=self.weight_decay,
+            )
+            self.layers.append(layer)
+
+    def set_weights(self, weights):
+        w_list, b_list = self._extract_weight_lists(weights)
+
+        if len(w_list) != len(b_list):
+            raise ValueError("Weights and biases length mismatch")
+
+        # If layer count or shapes don't match, rebuild architecture from fixed weights.
+        need_rebuild = len(self.layers) != len(w_list)
+        if not need_rebuild:
+            for i, layer in enumerate(self.layers):
+                if layer.W.shape != np.array(w_list[i]).shape or layer.b.shape != np.array(b_list[i]).shape:
+                    need_rebuild = True
+                    break
+
+        if need_rebuild:
+            self._rebuild_layers_from_weights(w_list)
+
+        for i, layer in enumerate(self.layers):
+            layer.W = np.array(w_list[i])
+            layer.b = np.array(b_list[i])
+            layer.grad_W = np.zeros_like(layer.W)
+            layer.grad_b = np.zeros_like(layer.b)
