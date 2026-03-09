@@ -110,8 +110,7 @@ def main():
 
     # Save best model
     best_weights = model.get_weights()
-
-    np.save(args.model_save_path, np.array(best_weights, dtype=object), allow_pickle=True)
+    np.save(args.model_save_path, best_weights, allow_pickle=True)
 
     print("Best model saved at:", args.model_save_path)
 

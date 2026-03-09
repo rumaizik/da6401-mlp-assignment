@@ -192,11 +192,12 @@ class NeuralNetwork:
 # Required by autograder
 # --------------------------------------------------
     def get_weights(self):
-        weights = []
-        for layer in self.layers:
-            weights.append(layer.W)
-            weights.append(layer.b)
+        weights = {}
+        for i, layer in enumerate(self.layers):
+            weights[f"W{i}"] = layer.W
+            weights[f"b{i}"] = layer.b
         return weights
+
 
     def set_weights(self, weights):
 

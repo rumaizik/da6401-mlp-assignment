@@ -22,9 +22,9 @@ best_config = argparse.Namespace(
 
 model = NeuralNetwork(best_config)
 
-weights = np.load("best_model.npy", allow_pickle=True).item()
 
-model.weights = weights
+weights = np.load("best_model.npy", allow_pickle=True).item()
+model.set_weights(weights)
 
 X_test = np.random.rand(100, 784)
 
