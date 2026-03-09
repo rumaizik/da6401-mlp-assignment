@@ -188,11 +188,7 @@ class NeuralNetwork:
 
         return accuracy
 
-    # --------------------------------------------------
-    # Required by autograder
-    # --------------------------------------------------
-
-    # --------------------------------------------------
+# --------------------------------------------------  
 # Required by autograder
 # --------------------------------------------------
 
@@ -209,9 +205,10 @@ class NeuralNetwork:
 
     def set_weights(self, weights):
 
-        idx = 0
+        weights = list(weights)
 
+        idx = 0
         for layer in self.layers:
-            layer.W = weights[idx]
-            layer.b = weights[idx + 1]
+            layer.W = np.array(weights[idx])
+            layer.b = np.array(weights[idx + 1])
             idx += 2
