@@ -192,6 +192,10 @@ class NeuralNetwork:
 # Required by autograder
 # --------------------------------------------------
 
+ # --------------------------------------------------
+# Required by autograder
+# --------------------------------------------------
+
     def get_weights(self):
 
         weights = []
@@ -205,19 +209,9 @@ class NeuralNetwork:
 
     def set_weights(self, weights):
 
-    idx = 0
+        idx = 0
 
-    for layer in self.layers:
-
-        W = weights[idx]
-        b = weights[idx + 1]
-
-        if isinstance(W, tuple):
-            W = W[1]
-        if isinstance(b, tuple):
-            b = b[1]
-
-        layer.W = np.array(W, dtype=float)
-        layer.b = np.array(b, dtype=float)
-
-        idx += 2
+        for layer in self.layers:
+            layer.W = np.array(weights[idx])
+            layer.b = np.array(weights[idx + 1])
+            idx += 2
