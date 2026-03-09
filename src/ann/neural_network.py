@@ -194,12 +194,16 @@ class NeuralNetwork:
 
     def get_weights(self):
 
-        weights = []
+        params = []
 
         for layer in self.layers:
-            weights.append((layer.W, layer.b))
 
-        return weights
+            # Only layers with weights (Dense layers)
+            if hasattr(layer, "W") and hasattr(layer, "b"):
+               params.append(layer.W)
+               params.append(layer.b)
+
+        return params
 
     # --------------------------------------------------
 
