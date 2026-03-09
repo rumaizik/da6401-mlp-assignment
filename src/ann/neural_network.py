@@ -106,7 +106,13 @@ class NeuralNetwork:
 
     # --------------------------------------------------
 
-    def backward(self):
+    def backward(self, y_true=None, y_pred=None):
+        """
+        Backward pass.
+        Accept optional (y_true, y_pred) for autograder compatibility.
+        """
+        if y_true is not None and y_pred is not None:
+            self.loss_fn.forward(y_true, y_pred)
 
         grad = self.loss_fn.backward()
 
@@ -156,7 +162,7 @@ class NeuralNetwork:
 
                 self.update_weights()
 
-            avg_loss = total_loss / (n // batch_size)
+            avg_loss = total_loss / max(1, (n // batch_size))
 
             train_accuracy = self.evaluate(X_train, y_train)
             val_accuracy = self.evaluate(X_val, y_val)
@@ -188,33 +194,50 @@ class NeuralNetwork:
 
         return accuracy
 
-# --------------------------------------------------  
-# Required by autograder
-# --------------------------------------------------
+    # --------------------------------------------------
+    # Required by autograder
+    # --------------------------------------------------
     def get_weights(self):
-        weights = {}
-        for i, layer in enumerate(self.layers):
-            weights[f"W{i}"] = layer.W
-            weights[f"b{i}"] = layer.b
-        return weights
-
+        weights = [layer.W for layer in self.layers]
+        biases = [layer.b for layer in self.layers]
+        return {"weights": weights, "biases": biases}
 
     def set_weights(self, weights):
 
-    # handle dict format from autograder
-        if isinstance(weights, dict):
-           for i, layer in enumerate(self.layers):
-               layer.W = np.array(weights[f"W{i}"])
-               layer.b = np.array(weights[f"b{i}"])
-           return
+        # Format 1: {"weights": [...], "biases": [...]}.
+        if isinstance(weights, dict) and "weights" in weights and "biases" in weights:
+            w_list = weights["weights"]
+            b_list = weights["biases"]
+            for i, layer in enumerate(self.layers):
+                layer.W = np.array(w_list[i])
+                layer.b = np.array(b_list[i])
+            return
 
-    # handle list format from saved model
-        idx = 0
-        for layer in self.layers:
-            layer.W = np.array(weights[idx])
-            layer.b = np.array(weights[idx + 1])
-            idx += 2
-    
+        # Format 2: {"W0":..., "b0":..., ...}.
+        if isinstance(weights, dict) and all(
+            f"W{i}" in weights and f"b{i}" in weights for i in range(len(self.layers))
+        ):
+            for i, layer in enumerate(self.layers):
+                layer.W = np.array(weights[f"W{i}"])
+                layer.b = np.array(weights[f"b{i}"])
+            return
 
+        # Format 3: [weights_list, biases_list].
+        if isinstance(weights, (list, tuple)) and len(weights) == 2:
+            w_list, b_list = weights
+            if len(w_list) == len(self.layers) and len(b_list) == len(self.layers):
+                for i, layer in enumerate(self.layers):
+                    layer.W = np.array(w_list[i])
+                    layer.b = np.array(b_list[i])
+                return
 
-        
+        # Format 4: [W0, b0, W1, b1, ...].
+        if isinstance(weights, (list, tuple)) and len(weights) == 2 * len(self.layers):
+            idx = 0
+            for layer in self.layers:
+                layer.W = np.array(weights[idx])
+                layer.b = np.array(weights[idx + 1])
+                idx += 2
+            return
+
+        raise ValueError("Unsupported weight format for set_weights")
