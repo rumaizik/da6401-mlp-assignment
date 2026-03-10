@@ -194,7 +194,12 @@ class NeuralNetwork:
     def get_weights(self):
         weights = [layer.W for layer in self.layers]
         biases = [layer.b for layer in self.layers]
-        return {"weights": weights, "biases": biases}
+
+        out = {"weights": weights, "biases": biases}
+        for i, (w, b) in enumerate(zip(weights, biases)):
+            out[f"W{i}"] = w
+            out[f"b{i}"] = b
+        return out
 
     # Backward compatibility for evaluators that assign `model.weights = ...`
     # instead of calling `set_weights(...)`.
@@ -299,5 +304,6 @@ class NeuralNetwork:
             layer.b = np.array(b_list[i])
             layer.grad_W = np.zeros_like(layer.W)
             layer.grad_b = np.zeros_like(layer.b)
+
 
 
