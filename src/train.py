@@ -44,7 +44,8 @@ def parse_arguments():
 
     parser.add_argument("-wp", "--wandb_project", type=str, default="da6401-mlp")
 
-    parser.add_argument("--model_save_path", type=str, default="src/best_model.npy")
+    parser.add_argument("--model_save_path", type=str, default="src/model.npy")
+    parser.add_argument("--config_save_path", type=str, default="src/config.json")
 
     return parser.parse_args()
 
@@ -115,13 +116,14 @@ def main():
     print("Best model saved at:", args.model_save_path)
 
     # Save config
-    with open("src/best_config.json", "w") as f:
+    with open(args.config_save_path, "w") as f:
         json.dump(vars(args), f, indent=4)
 
-    print("Best config saved")
+    print("Config saved at:", args.config_save_path)
 
 
 # --------------------------------------------------
 
 if __name__ == "__main__":
     main()
+
