@@ -196,6 +196,30 @@ class NeuralNetwork:
         biases = [layer.b for layer in self.layers]
         return {"weights": weights, "biases": biases}
 
+    # Backward compatibility for evaluators that assign `model.weights = ...`
+    # instead of calling `set_weights(...)`.
+    @property
+    def weights(self):
+        return [layer.W for layer in self.layers]
+
+    @weights.setter
+    def weights(self, value):
+        self.set_weights(value)
+
+    @property
+    def biases(self):
+        return [layer.b for layer in self.layers]
+
+    @biases.setter
+    def biases(self, value):
+        if isinstance(value, (list, tuple, np.ndarray)):
+            b_list = self._normalize_weight_container(value)
+            if len(b_list) == len(self.layers):
+                for i, layer in enumerate(self.layers):
+                    layer.b = np.array(b_list[i])
+                    layer.grad_b = np.zeros_like(layer.b)
+                return
+        self.set_weights({"weights": [layer.W for layer in self.layers], "biases": value})
     def _normalize_weight_container(self, obj):
         if isinstance(obj, np.ndarray):
             if obj.shape == ():
@@ -275,4 +299,5 @@ class NeuralNetwork:
             layer.b = np.array(b_list[i])
             layer.grad_W = np.zeros_like(layer.W)
             layer.grad_b = np.zeros_like(layer.b)
+
 
