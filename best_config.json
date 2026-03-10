@@ -1,14 +1,13 @@
 {
     "dataset": "mnist",
-    "epochs": 30,
+    "epochs": 10,
     "batch_size": 64,
     "learning_rate": 0.001,
-    "optimizer": "rmsprop",
+    "optimizer": "sgd",
     "loss": "cross_entropy",
-    "weight_decay": 0.0001,
-    "num_layers": 3,
+    "weight_decay": 0.0,
+    "num_layers": 2,
     "hidden_size": [
-        128,
         128,
         64
     ],
@@ -17,7 +16,6 @@
     "wandb_project": "da6401-mlp",
     "model_save_path": "src/best_model.npy",
     "hidden_layers": [
-        128,
         128,
         64
     ],
