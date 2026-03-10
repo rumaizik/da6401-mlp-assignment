@@ -1,9 +1,9 @@
 {
-    "dataset": "mnist",
-    "epochs": 10,
+    "dataset": "fashion_mnist",
+    "epochs": 25,
     "batch_size": 64,
     "learning_rate": 0.001,
-    "optimizer": "sgd",
+    "optimizer": "rmsprop",
     "loss": "cross_entropy",
     "weight_decay": 0.0,
     "num_layers": 2,
